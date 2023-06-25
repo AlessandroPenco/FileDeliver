@@ -12,7 +12,6 @@ steps:
   inputs:
     azureSubscription: 'myConnection'
     scriptType: 'bash'
-    scriptLocation: 'inline'
     inlineScript: 'az login'
 
 - task: AzureCLI@2
@@ -20,7 +19,6 @@ steps:
   inputs:
     azureSubscription: 'myConnection'
     scriptType: 'bash'
-    scriptLocation: 'inline'
     inlineScript: |
       az storage account create --name apapifunctionapp20230518 --resource-group HPC --location Switzerland North --sku Standard_LRS
 
@@ -29,7 +27,6 @@ steps:
   inputs:
     azureSubscription: 'myConnection'
     scriptType: 'bash'
-    scriptLocation: 'inline'
     inlineScript: |
       az storage container create --name myBlob --account-name apapifunctionapp20230518 --account-key $(StorageAccountKey)
 
@@ -60,7 +57,6 @@ steps:
   inputs:
     azureSubscription: 'myConnection'
     scriptType: 'bash'
-    scriptLocation: 'inline'
     inlineScript: |
       az storage blob upload-batch --destination '$web' --account-name apapifunctionapp20230518 --account-key $(StorageAccountKey) --source '$(System.DefaultWorkingDirectory)'
       az functionapp deployment source config-zip --src '$(System.DefaultWorkingDirectory)/webapp.zip' --resource-group HPC --name appFunctionFileDeliver
