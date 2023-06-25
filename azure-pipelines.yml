@@ -10,7 +10,7 @@ steps:
 - task: AzureCLI@2
   displayName: 'Login to Azure'
   inputs:
-    azureSubscription: '3d600cb7-0544-4631-9116-27e1e1f3343f'
+    azureSubscription: 'myConnection'
     scriptType: 'bash'
     scriptLocation: 'inline'
     inlineScript: 'az login'
@@ -18,7 +18,7 @@ steps:
 - task: AzureCLI@2
   displayName: 'Create Blob Storage'
   inputs:
-    azureSubscription: '3d600cb7-0544-4631-9116-27e1e1f3343f'
+    azureSubscription: 'myConnection'
     scriptType: 'bash'
     scriptLocation: 'inline'
     inlineScript: |
@@ -27,7 +27,7 @@ steps:
 - task: AzureCLI@2
   displayName: 'Create Blob Container'
   inputs:
-    azureSubscription: '3d600cb7-0544-4631-9116-27e1e1f3343f'
+    azureSubscription: 'myConnection'
     scriptType: 'bash'
     scriptLocation: 'inline'
     inlineScript: |
@@ -36,7 +36,7 @@ steps:
 - task: AzureFunctionApp@1
   displayName: 'Create Azure Function App'
   inputs:
-    azureSubscription: '3d600cb7-0544-4631-9116-27e1e1f3343f'
+    azureSubscription: 'myConnection'
     appName: 'appFunctionFileDeliver'
     package: '$(System.DefaultWorkingDirectory)/**/*.zip'
     runtimeStack: 'dotnet'
@@ -58,7 +58,7 @@ steps:
 - task: AzureCLI@2
   displayName: 'Deploy Blob Storage and Azure Function'
   inputs:
-    azureSubscription: '3d600cb7-0544-4631-9116-27e1e1f3343f'
+    azureSubscription: 'myConnection'
     scriptType: 'bash'
     scriptLocation: 'inline'
     inlineScript: |
