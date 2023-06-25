@@ -1,0 +1,66 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: AzureCLI@2
+  displayName: 'Login to Azure'
+  inputs:
+    azureSubscription: '3d600cb7-0544-4631-9116-27e1e1f3343f'
+    scriptType: 'bash'
+    scriptLocation: 'inline'
+    inlineScript: 'az login'
+
+- task: AzureCLI@2
+  displayName: 'Create Blob Storage'
+  inputs:
+    azureSubscription: '3d600cb7-0544-4631-9116-27e1e1f3343f'
+    scriptType: 'bash'
+    scriptLocation: 'inline'
+    inlineScript: |
+      az storage account create --name apapifunctionapp20230518 --resource-group HPC --location Switzerland North --sku Standard_LRS
+
+- task: AzureCLI@2
+  displayName: 'Create Blob Container'
+  inputs:
+    azureSubscription: '3d600cb7-0544-4631-9116-27e1e1f3343f'
+    scriptType: 'bash'
+    scriptLocation: 'inline'
+    inlineScript: |
+      az storage container create --name myBlob --account-name apapifunctionapp20230518 --account-key $(StorageAccountKey)
+
+- task: AzureFunctionApp@1
+  displayName: 'Create Azure Function App'
+  inputs:
+    azureSubscription: '3d600cb7-0544-4631-9116-27e1e1f3343f'
+    appName: 'appFunctionFileDeliver'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    runtimeStack: 'dotnet'
+    azureFunctionsVersion: '3'
+
+- task: ArchiveFiles@2
+  displayName: 'Archive Web App files'
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+    includeRootFolder: false
+    archiveFile: '$(Build.ArtifactStagingDirectory)/webapp.zip'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Web App artifact'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/webapp.zip'
+    ArtifactName: 'webapp'
+
+- task: AzureCLI@2
+  displayName: 'Deploy Blob Storage and Azure Function'
+  inputs:
+    azureSubscription: '3d600cb7-0544-4631-9116-27e1e1f3343f'
+    scriptType: 'bash'
+    scriptLocation: 'inline'
+    inlineScript: |
+      az storage blob upload-batch --destination '$web' --account-name apapifunctionapp20230518 --account-key $(StorageAccountKey) --source '$(System.DefaultWorkingDirectory)'
+      az functionapp deployment source config-zip --src '$(System.DefaultWorkingDirectory)/webapp.zip' --resource-group HPC --name appFunctionFileDeliver
